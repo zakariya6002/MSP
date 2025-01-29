@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .progress-container {
+            width: 50%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 20px auto;
+            padding: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .progress-bar {
+            height: 30px;
+            width: {{ progress }}%;
+            background-color: #4caf50;
+            border-radius: 10px;
+            transition: width 0.5s;
+            text-align: center;
+            color: white;
+            line-height: 30px;
+            font-weight: bold;
+        }
+        table {
+            width: 50%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Task Progress</h1>
+    <div class="progress-container">
+        <div class="progress-bar">{{ progress }}%</div>
+    </div>
+
+    <h2>Progress Log</h2>
+    <table>
+        <tr>
+            <th>Timestamp</th>
+            <th>Completed Tasks</th>
+        </tr>
+        {% for log in progress_log %}
+        <tr>
+            <td>{{ log[0] }}</td>
+            <td>{{ log[1] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
