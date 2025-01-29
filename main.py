@@ -52,16 +52,21 @@ def update_progress_log(completed_tasks):
     """Updates the progress log while keeping only one entry per date and tracking differences."""
     today = datetime.date.today().strftime("%Y-%m-%d")
 
+    # Check if there's already an entry for today
     if today in progress_log:
-        # Update today's record if it exists
-        progress_log[today] = completed_tasks
+        # Update the existing record for today
+        progress_log[today]["completed_tasks"] = completed_tasks
     else:
-        # Get the last recorded date's value
+        # Get the last recorded date and its completed task count
         previous_date = max(progress_log.keys(), default=None)
-        previous_value = progress_log[previous_date] if previous_date else 0
+        previous_value = progress_log[previous_date]["completed_tasks"] if previous_date else 0
 
-        # Store new record with difference from the previous day
-        progress_log[today] = completed_tasks - previous_value
+        # Store new entry for today
+        progress_log[today] = {
+            "timestamp": today,  # Store the actual date
+            "completed_tasks": completed_tasks - previous_value,  # Difference from last recorded day
+        }
+
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):

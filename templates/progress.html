@@ -50,13 +50,13 @@
     <h2>Progress Log</h2>
     <table>
         <tr>
-            <th>Timestamp</th>
+            <th>Date</th>
             <th>Completed Tasks</th>
         </tr>
-        {% for log in progress_log %}
+        {% for date, log in progress_log.items() %}
         <tr>
-            <td>{{ log[0] }}</td>
-            <td>{{ log[1] }}</td>
+            <td>{{ log.timestamp }}</td>
+            <td>{{ log.completed_tasks }}</td>
         </tr>
         {% endfor %}
     </table>
