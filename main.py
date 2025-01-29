@@ -19,8 +19,8 @@ SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 SPREADSHEET_ID = "1yLEGtm2mxOuSaB4dBt7GQiw-C5Dlp7R2mMraI5U2tdY"
 RANGE_NAME = "Sheet1!A:C"  # Adjusted range to include "Completed" column
 
-# Storage for daily logs
-progress_log = []
+# Storage for daily logs (keeps only one entry per day)
+progress_log = {}
 
 def get_google_sheet_data():
     """Fetch data from Google Sheets and count completed tasks."""
@@ -43,19 +43,31 @@ def get_google_sheet_data():
         total_tasks = len(values) - 1  # Exclude headers
         completed_tasks = sum(1 for row in values[1:] if len(row) > 2 and row[2].strip().lower() in ["yes", "✔", "✅", "tick"])
 
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        progress_log.append((timestamp, completed_tasks))
-        if len(progress_log) > 10:
-            progress_log.pop(0)
-
         return completed_tasks, total_tasks
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Google Sheets API Error: {str(e)}")
 
+def update_progress_log(completed_tasks):
+    """Updates the progress log while keeping only one entry per date and tracking differences."""
+    today = datetime.date.today().strftime("%Y-%m-%d")
+
+    if today in progress_log:
+        # Update today's record if it exists
+        progress_log[today] = completed_tasks
+    else:
+        # Get the last recorded date's value
+        previous_date = max(progress_log.keys(), default=None)
+        previous_value = progress_log[previous_date] if previous_date else 0
+
+        # Store new record with difference from the previous day
+        progress_log[today] = completed_tasks - previous_value
+
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     completed, total = get_google_sheet_data()
+    update_progress_log(completed)
+    
     progress = int((completed / total) * 100) if total > 0 else 0
     
     return templates.TemplateResponse("progress.html", {"request": request, "progress": progress, "progress_log": progress_log})
